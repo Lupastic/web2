@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        const userId = 1;
+        
+        function loadProfile() {
+            fetch(`/users/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('User not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('user-name').textContent = data.name;
+                    document.getElementById('user-id').textContent = data.id;
+                })
+                .catch(error => {
+                    console.error('Error loading user:', error);
+                    alert('Failed to load profile. Please try again later.');
+                });
+        }
+        
+        window.onload = loadProfile;
+        function loadProfile() {
+            fetch(`/users`)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.users.find(user => user[0] === userId);
+                    if (user) {
+                        document.getElementById('user-name').textContent = user[1];
+                        document.getElementById('user-id').textContent = user[0];
+                    } else {
+                        alert('User not found');
+                    }
+                })
+                .catch(error => console.error('Error loading user:', error));
+        }
+        function deleteProfile() {
+            fetch(`/users/${userId}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Profile deleted successfully');
+                        window.location.href = '/';
+                    } else {
+                        alert('Failed to delete profile');
+                    }
+                })
+                .catch(error => console.error('Error deleting profile:', error));
+        }
+
+        window.onload = loadProfile;
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">AITU IT Discussion Forum</div>
+        <div class="menu">
+            <a href="/">Main</a>
+            <a href="/main">Topics</a>
+            <a href="/sign">Log out</a>
+        </div>
+    </div>
+    <div class="profile-container">
+        <h1>User Profile</h1>
+        <p><strong>User ID:</strong> <span id="user-id"></span></p>
+        <p><strong>Name:</strong> <span id="user-name"></span></p>
+        <button onclick="deleteProfile()">Delete Profile</button>
+    </div>
+</body>
+</html>
