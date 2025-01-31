@@ -16,22 +16,23 @@ async function handleSignUp(event) {
         return;
     }
 
-    const userId = Math.floor(Math.random() * 1000);
-
     try {
-        const response = await fetch('/users', {
+        const response = await fetch('/api/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ id: userId, name: username })
+            body: JSON.stringify({ username, email, password })
         });
 
         if (response.ok) {
             const data = await response.json();
-            alert(`Registration successful! Your ID is: ${data.user.id}`);
-            console.log(`Registered User:`, data.user);
-            window.location.href = '/main';
+            if (data.user_id) {
+                alert(`Registration successful! Your ID is: ${data.user_id}`);
+                window.location.href = `/main?user_id=${data.user_id}`;
+            } else {
+                alert('Registration failed. Please try again.');
+            }
         } else {
             const error = await response.json();
             alert('Error: ' + error.error);
@@ -41,3 +42,5 @@ async function handleSignUp(event) {
         alert('Failed to register. Please try again later.');
     }
 }
+
+document.getElementById('signup-form').addEventListener('submit', handleSignUp);
