@@ -16,31 +16,46 @@ async function handleSignUp(event) {
         return;
     }
 
+    const deviceId = getDeviceId(); // Получаем deviceId *перед* fetch
+    const API_REGISTER_URL = '/api/users/register';
+
     try {
-        const response = await fetch('/api/users', {
+        const response = await fetch(API_REGISTER_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({ username, email, password, deviceId })
         });
 
         if (response.ok) {
             const data = await response.json();
-            if (data.user_id) {
-                alert(`Registration successful! Your ID is: ${data.user_id}`);
-                window.location.href = `/main?user_id=${data.user_id}`;
-            } else {
-                alert('Registration failed. Please try again.');
-            }
+            alert(`Registration successful!`);
+            window.location.href = `/login.html`;
         } else {
             const error = await response.json();
-            alert('Error: ' + error.error);
+            alert('Registration Error: ' + (error.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error during registration:', error);
-        alert('Failed to register. Please try again later.');
+        alert('Failed to register. Please check your connection and try again.');
     }
+}
+
+function getDeviceId() {
+    let deviceId = localStorage.getItem('deviceId');
+    if (!deviceId) {
+        deviceId = generateUUID();
+        localStorage.setItem('deviceId', deviceId);
+    }
+    return deviceId;
+}
+
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
 document.getElementById('signup-form').addEventListener('submit', handleSignUp);
